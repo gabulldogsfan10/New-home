@@ -1,0 +1,491 @@
+<title>2414 19th Ave</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column "punch list" — summary strip, then tabbed lists grouped by room. Haint-blue porch ceiling + 1930s brick. */
+:root{
+  --bg:#f3f6f5; --surface:#ffffff; --sunk:#e6ecea; --line:#d3dcda;
+  --fg:#1d2a2b; --muted:#5b6b6c;
+  --haint:#3f8783; --haint-soft:#d6ebe8; --on-haint:#ffffff;
+  --brick:#a2492f; --brick-soft:#f4dfd7;
+  --ok:#2f7a4a; --ok-soft:#dcefe2; --warn:#9a6a10; --warn-soft:#f5ead0;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121a1b; --surface:#1a2425; --sunk:#0e1516; --line:#2c3a3b;
+  --fg:#e3ecea; --muted:#93a5a4;
+  --haint:#7cc4bf; --haint-soft:#1f3a39; --on-haint:#0d1a1a;
+  --brick:#e48a6c; --brick-soft:#3b231c;
+  --ok:#7fcf9a; --ok-soft:#1b3424; --warn:#e2b75a; --warn-soft:#3a2e14;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a1b; --surface:#1a2425; --sunk:#0e1516; --line:#2c3a3b;
+  --fg:#e3ecea; --muted:#93a5a4;
+  --haint:#7cc4bf; --haint-soft:#1f3a39; --on-haint:#0d1a1a;
+  --brick:#e48a6c; --brick-soft:#3b231c;
+  --ok:#7fcf9a; --ok-soft:#1b3424; --warn:#e2b75a; --warn-soft:#3a2e14;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 64px;display:grid;gap:18px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--haint);outline-offset:2px}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* header */
+.top{display:grid;gap:14px}
+.addr{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.addr h1{font-size:clamp(28px,6vw,40px);font-weight:700;letter-spacing:-.01em}
+.addr p{margin:4px 0 0;color:var(--muted)}
+.sync{font:500 12px var(--mono);padding:5px 10px;border-radius:99px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.sync.live{background:var(--ok-soft);color:var(--ok)}
+.sync.local{background:var(--warn-soft);color:var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stat{background:var(--surface);padding:12px 14px;display:grid;gap:4px;min-width:0}
+.stat b{font:700 24px/1.1 var(--display)}
+.stat.close b{color:var(--brick)}
+.stat small{color:var(--muted);font-size:12px}
+.meter{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--haint);width:0;transition:width .4s}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs a{padding:10px 12px;text-decoration:none;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.tabs a[aria-current="page"]{color:var(--fg);border-color:var(--haint)}
+.tabs .count{font:500 11px var(--mono);background:var(--sunk);padding:2px 6px;border-radius:99px}
+.intro{color:var(--muted);margin:0;max-width:65ch}
+
+/* toolbar */
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar input[type=search]{flex:1 1 180px;min-width:0}
+input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+textarea{width:100%;min-height:70px;resize:vertical}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 11px;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--haint);border-color:var(--haint);color:var(--on-haint)}
+.btn{border:0;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer;background:var(--haint);color:var(--on-haint)}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--brick);border:1px solid var(--brick)}
+
+/* quick add */
+.add{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;padding:12px;background:var(--haint-soft);border-radius:var(--r)}
+.add input{width:100%}
+@media (max-width:560px){.add{grid-template-columns:1fr 1fr}.add input:first-child,.add .btn{grid-column:1/-1}}
+
+/* lists */
+.group{display:grid;gap:6px}
+.group h3{font-size:17px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px 2px 2px}
+.group h3 span{font:400 12px var(--mono);color:var(--muted)}
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.tick{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0}
+.tick svg{width:14px;height:14px;opacity:0}
+.row.ordered .tick{border-color:var(--warn);background:var(--warn-soft)}
+.row.done .tick{border-color:var(--ok);background:var(--ok)}
+.row.done .tick svg{opacity:1;stroke:var(--surface)}
+.row.done .what b{text-decoration:line-through;color:var(--muted);font-weight:500}
+.what{min-width:0;cursor:pointer;display:grid;gap:3px}
+.what b{font-weight:600;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted);align-items:center}
+.pill{font:500 11px/1 var(--mono);padding:4px 7px;border-radius:99px;background:var(--sunk);color:var(--muted);letter-spacing:.02em}
+.pill.movein{background:var(--brick-soft);color:var(--brick)}
+.pill.ordered{background:var(--warn-soft);color:var(--warn)}
+.pill.late{background:var(--brick);color:var(--surface)}
+.pill.soon{background:var(--warn-soft);color:var(--warn)}
+.price{text-align:right;font:500 13px var(--mono);font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);display:grid;gap:10px;justify-items:center}
+.note{font-size:13px;color:var(--muted);background:var(--sunk);border-radius:8px;padding:10px 12px}
+.note b{color:var(--fg)}
+.keyfacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.kf{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:2px}
+.kf span{font-size:12px;color:var(--muted)}
+
+/* editor sheet */
+.scrim{position:fixed;inset:0;background:rgb(0 0 0 / .35);z-index:20}
+.sheet{position:fixed;z-index:21;left:50%;bottom:0;transform:translateX(-50%);width:min(560px,100%);max-height:90%;overflow:auto;background:var(--surface);border-radius:14px 14px 0 0;padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:grid;gap:12px;box-shadow:0 -8px 30px rgb(0 0 0 / .2)}
+@media (min-width:640px){.sheet{bottom:auto;top:50%;transform:translate(-50%,-50%);border-radius:14px}}
+.sheet h2{font-size:20px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fields label{display:grid;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+.fields .full{grid-column:1/-1}
+.fields input,.fields select{width:100%}
+.actions{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.actions div{display:flex;gap:8px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;z-index:30}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="addr">
+      <div>
+        <div class="eyebrow">Our new home · built 1933</div>
+        <h1>2414 19th Ave</h1>
+        <p>Columbus, GA 31901 · Joshua &amp; April</p>
+      </div>
+      <span class="sync" id="sync">Connecting…</span>
+    </div>
+    <div class="stats">
+      <div class="stat close"><span class="eyebrow">Closing</span><b class="num" id="sDays">–</b><small id="sDate">Thu, Dec 3, 2026</small></div>
+      <div class="stat"><span class="eyebrow">Still to buy</span><b class="num" id="sNeed">–</b><small id="sNeedSub">items</small></div>
+      <div class="stat"><span class="eyebrow">Budget left</span><b class="num" id="sBudget">–</b><small id="sSpent">spent $0</small></div>
+      <div class="stat"><span class="eyebrow">Closing steps</span><b class="num" id="sTasks">–</b><div class="meter"><i id="sMeter"></i></div></div>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Lists">
+    <a href="#buy" data-tab="buy">To buy <span class="count" id="cBuy">0</span></a>
+    <a href="#stays" data-tab="stays">Staying <span class="count" id="cStays">0</span></a>
+    <a href="#closing" data-tab="closing">Closing <span class="count" id="cTask">0</span></a>
+  </nav>
+
+  <p class="intro" id="intro"></p>
+
+  <form class="add" id="addForm" autocomplete="off">
+    <input id="addTitle" placeholder="Add something…" aria-label="New item" required>
+    <select id="addRoom" aria-label="Room"></select>
+    <select id="addPri" aria-label="When"></select>
+    <button class="btn" type="submit">Add</button>
+  </form>
+
+  <div class="bar" id="toolbar">
+    <input type="search" id="q" placeholder="Search" aria-label="Search">
+    <select id="fWho" aria-label="Who's on it">
+      <option value="">Anyone</option><option>Joshua</option><option>April</option><option>Either</option>
+    </select>
+    <div class="chips" id="fStatus"></div>
+  </div>
+
+  <main id="out" aria-live="polite"></main>
+</div>
+
+<div id="sheetHost" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+const CLOSING = new Date(2026, 11, 3);
+const ROOMS = ["Kitchen","Living room","Dining room","Primary bedroom","Bedroom 2","Bathroom","Laundry","Whole house","Outside & yard","Storage building","Paperwork & money"];
+const PRI = {buy:[["movein","Before move-in"],["soon","First month"],["later","Someday"]],
+             stays:[["movein","Check at walk-through"]],
+             task:[["movein","Before closing"],["soon","Closing week"],["later","After closing"]]};
+const STATUS = {buy:[["","All"],["todo","Still need"],["ordered","Ordered"],["done","Got it"]],
+                stays:[["","All"],["todo","Not checked"],["done","Confirmed"]],
+                task:[["","All"],["todo","To do"],["done","Done"]]};
+const KIND_OF_TAB = {buy:"buy",stays:"stays",closing:"task"};
+const INTRO = {
+  buy:"Everything we still need to get. Tap the circle to cycle Still need → Ordered → Got it. Tap an item to add a price, a link, or who's handling it.",
+  stays:"From the seller's Fixtures Checklist (F301, signed 10/21/2026). These items must stay with the house. Use this at the final walk-through and check each one off when you see it.",
+  closing:"Deadlines from the Purchase and Sale Agreement (offer date 11/03/2026). Dates marked ≈ count from the Binding Agreement Date, so confirm the exact day with Scott."
+};
+
+/* Starter list. Used to fill an empty list on first run. */
+const STARTER = [
+ // ----- To buy: items NOT on the seller's checklist, so they leave with the seller
+ ["b01","buy","Refrigerator","Kitchen","movein",1400,"Not on the seller's checklist, so it goes with them. Measure the space and door widths first."],
+ ["b02","buy","Washer","Laundry","movein",800,"Not staying. Check the hookups before buying."],
+ ["b03","buy","Dryer","Laundry","movein",750,"Not staying. Check if the hookup is gas or electric and 3- or 4-prong."],
+ ["b04","buy","HVAC filters (a few months' worth)","Whole house","movein",60,"Pull the old filter at walk-through to get the size."],
+ ["b05","buy","New locks or rekey kit for exterior doors","Whole house","movein",180,""],
+ ["b06","buy","Fire extinguishers (kitchen + one per floor)","Kitchen","movein",80,""],
+ ["b07","buy","Cleaning supplies for move-in clean","Whole house","movein",80,""],
+ ["b08","buy","Shower curtain, rod liner & bath mats","Bathroom","movein",60,"The shower head stays; curtain does not."],
+ ["b09","buy","Plunger & toilet brush","Bathroom","movein",25,""],
+ ["b10","buy","First-aid kit","Whole house","movein",30,""],
+ ["b11","buy","Basic toolkit, drill & stud finder","Storage building","movein",150,""],
+ ["b12","buy","Extension cords & surge protectors","Whole house","movein",60,"A 1933 house may have fewer outlets per room."],
+ ["b13","buy","HEPA vacuum","Whole house","soon",250,"House is pre-1978. A HEPA vacuum is the EPA's advice for cleaning up dust from older paint."],
+ ["b14","buy","Descaling kit for tankless water heater","Laundry","soon",40,"Seller says the water heater is tankless, age unknown. Annual flush keeps it healthy."],
+ ["b15","buy","Garden hose, nozzle & hose reel","Outside & yard","soon",80,"There's an irrigation system that stays — ask the seller for the controller settings."],
+ ["b16","buy","Lawn mower & trimmer","Outside & yard","soon",450,""],
+ ["b17","buy","Doormats (front & back)","Outside & yard","soon",50,""],
+ ["b18","buy","Step stool / small ladder","Storage building","soon",70,"Ceiling fans and light fixtures stay; you'll want to reach them."],
+ ["b19","buy","TV wall mount","Living room","later",60,"TV mounts aren't on the seller's checklist."],
+ ["b20","buy","Patio furniture","Outside & yard","later",400,"Outdoor furniture isn't staying."],
+ ["b21","buy","Grill","Outside & yard","later",300,""],
+ ["b22","buy","Window screens (if missing)","Whole house","later",0,"Screens aren't on the checklist. See what's there at walk-through."],
+ // ----- Staying with the house (F301 Fixtures Checklist, checked items)
+ ["s01","stays","Dishwasher","Kitchen"],["s02","stays","Garbage disposal","Kitchen"],["s03","stays","Microwave oven","Kitchen"],["s04","stays","Oven","Kitchen"],
+ ["s05","stays","Ceiling fans","Whole house"],["s06","stays","Chandelier","Dining room"],["s07","stays","Light bulbs","Whole house"],["s08","stays","Light fixtures","Whole house"],
+ ["s09","stays","Vanity (hanging) mirrors","Bathroom"],["s10","stays","Shower head / sprayer","Bathroom"],["s11","stays","Window blinds & hardware","Whole house"],["s12","stays","Window draperies & hardware","Whole house"],
+ ["s13","stays","Unused paint","Storage building"],["s14","stays","Irrigation system","Outside & yard"],["s15","stays","Mailbox","Outside & yard"],["s16","stays","Out / storage building","Storage building"],
+ ["s17","stays","Alarm system (burglar)","Whole house"],["s18","stays","Alarm system (smoke/fire)","Whole house"],["s19","stays","Security camera","Outside & yard"],["s20","stays","Carbon monoxide detector","Whole house"],
+ ["s21","stays","Doorbell","Outside & yard"],["s22","stays","Door & window hardware","Whole house"],["s23","stays","Smoke detectors","Whole house"],["s24","stays","Thermostat","Whole house"],
+ // ----- Closing steps
+ ["t01","task","Deliver $2,500 earnest money to Keller Williams Realty River Cities","Paperwork & money","movein",2500,"Due within 3 days of the Binding Agreement Date.","2026-11-06",true],
+ ["t02","task","Schedule home inspection","Paperwork & money","movein",450,"Must happen inside the 10-day due diligence period.","2026-11-09",true],
+ ["t03","task","Decide on a lead-based paint inspection","Paperwork & money","movein",400,"House is from 1933. The contract gives you up to 10 days to test for lead.","2026-11-09",true],
+ ["t04","task","Review inspection report & request repairs","Paperwork & money","movein",0,"Last day of due diligence (10 days from Binding Agreement Date). After this you can't walk away for free.","2026-11-13",true],
+ ["t05","task","Lender: send documents, appraisal, clear to close","Paperwork & money","movein",0,"Conventional loan contingency (F404).","2026-11-25",false],
+ ["t06","task","Buy homeowners insurance & send binder to lender","Paperwork & money","movein",0,"","2026-11-20",false],
+ ["t07","task","Confirm seller's termite letter is in","Paperwork & money","movein",0,"Special stipulation: seller provides an Official Georgia Wood Infestation Report before closing, and treats any active infestation.","2026-12-01",false],
+ ["t08","task","Ask: does the stove (range) stay?","Kitchen","movein",0,"The checklist marks 'Oven' but leaves 'Range', 'Surface Cook Top' and 'Vent Hood' blank. Get it in writing.","2026-11-13",false],
+ ["t09","task","Ask seller for tankless water heater & HVAC details","Paperwork & money","movein",0,"Water heater age unknown. HVAC last serviced 10/22/2026. Roof ~8–9 years old, repaired with ridge vents added.","2026-11-20",false],
+ ["t10","task","Ask about smart devices & ADT option","Whole house","movein",0,"Seller noted an ADT option. Get the cameras, doorbell and alarm reset to your accounts.","2026-11-20",false],
+ ["t11","task","Set up utilities: Georgia Power, Columbus Water Works, gas, internet","Paperwork & money","soon",0,"Start service on closing day.","2026-11-30",false],
+ ["t12","task","Book movers or a truck","Paperwork & money","movein",0,"","2026-11-20",false],
+ ["t13","task","Call the closing attorney to confirm wiring instructions by phone","Paperwork & money","soon",0,"Closing attorney: Nick Stutzman. Never trust wiring instructions from email alone.","2026-12-01",false],
+ ["t14","task","Final walk-through (use the Staying with house list)","Paperwork & money","soon",0,"","2026-12-02",false],
+ ["t15","task","Closing day — get the keys","Paperwork & money","soon",0,"$245,000 price, $10,000 seller contribution toward your costs. Possession at closing.","2026-12-03",false],
+ ["t16","task","Change locks & reset alarm, camera and garage codes","Whole house","later",0,"","2026-12-04",false],
+ ["t17","task","Change address with USPS, banks, work, DMV","Paperwork & money","later",0,"","2026-12-10",false],
+ ["t18","task","File homestead exemption with Muscogee County","Paperwork & money","later",0,"Deadline is April 1, 2027 for the 2027 tax year.","2027-04-01",false]
+];
+function starterDocs(){
+  return STARTER.map((s,i)=>{
+    const [id,kind,title,room,pri="movein",est=0,notes="",due="",approx=false]=s;
+    return {id,data:{kind,title,room,pri,est,cost:0,status:"todo",who:"Either",notes,link:"",due,approx,order:i,created:Date.now()}};
+  });
+}
+
+/* ---------- state ---------- */
+let items = new Map();          // id -> data
+let mode = "pending";           // "db" | "local" | "pending"
+let dbRef = null;
+let tab = "buy";
+const filt = {q:"",who:"",status:""};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "$"+Math.round(n||0).toLocaleString("en-US");
+
+/* ---------- storage ---------- */
+const LS_KEY = "newhome-2414-items";
+function lsLoad(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||"null"); }catch(e){ return null; } }
+function lsSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(Object.fromEntries(items))); }catch(e){} }
+function startLocal(why){
+  mode = "local";
+  const saved = lsLoad();
+  items = new Map();
+  if(saved && Object.keys(saved).length){ for(const k in saved) items.set(k,saved[k]); }
+  else { starterDocs().forEach(d=>items.set(d.id,d.data)); lsSave(); }
+  setSync("local", why||"Saved on this device only");
+  render();
+}
+function setSync(kind,text){ const s=$("sync"); s.className="sync "+kind; s.textContent=text; s.title = kind==="local" ? "Changes here won't show up on the other phone." : "Changes sync between both of you."; }
+
+async function writeItem(id,data){
+  items.set(id,data); render();
+  if(mode==="db"){ try{ await dbRef.collection("items").doc(id).set(data); }catch(e){ toast("Couldn't save. Check your connection and try again."); } }
+  else lsSave();
+}
+async function removeItem(id){
+  items.delete(id); render();
+  if(mode==="db"){ try{ await dbRef.collection("items").doc(id).delete(); }catch(e){ toast("Couldn't delete. Try again."); } }
+  else lsSave();
+}
+async function loadStarter(){
+  const docs = starterDocs();
+  for(const d of docs){ await writeItem(d.id,d.data); }
+  toast("Starter list added");
+}
+
+function boot(){
+  const c = window.claude;
+  if(!c || typeof c.use!=="function"){ startLocal(); return; }
+  let settled=false;
+  const timer=setTimeout(()=>{ if(!settled){ settled=true; startLocal("Offline · this device only"); } },10000);
+  c.use("db").then(db=>{
+    if(settled) return;
+    if(!db){ settled=true; clearTimeout(timer); startLocal("Sign in to sync"); return; }
+    dbRef=db;
+    db.collection("items").onSnapshot(snap=>{
+      if(!settled){ settled=true; clearTimeout(timer); }
+      mode="db"; setSync("live","Synced");
+      items=new Map(); snap.docs.forEach(d=>items.set(d.id,d.data()));
+      render();
+    }, err=>{ if(!settled){ settled=true; clearTimeout(timer); startLocal("Offline · this device only"); } else setSync("local","Sync paused"); });
+  }).catch(()=>{ if(!settled){ settled=true; clearTimeout(timer); startLocal(); } });
+}
+
+/* ---------- derived ---------- */
+function daysTo(d){ const t=new Date(); t.setHours(0,0,0,0); return Math.round((d-t)/864e5); }
+function parseDay(s){ if(!s) return null; const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fmtDay(s){ const d=parseDay(s); return d? d.toLocaleDateString("en-US",{month:"short",day:"numeric"}) : ""; }
+function all(kind){ return [...items.entries()].filter(([,v])=>v.kind===kind); }
+
+function renderStats(){
+  const d=daysTo(CLOSING);
+  $("sDays").textContent = d>1? d+" days" : d===1? "Tomorrow" : d===0? "Today!" : "Closed";
+  const buy=all("buy"), need=buy.filter(([,v])=>v.status!=="done");
+  $("sNeed").textContent=need.length;
+  $("sNeedSub").textContent = need.filter(([,v])=>v.pri==="movein").length+" needed before move-in";
+  const left=need.reduce((a,[,v])=>a+(+v.est||0),0);
+  const spent=buy.filter(([,v])=>v.status!=="todo").reduce((a,[,v])=>a+(+v.cost||+v.est||0),0);
+  $("sBudget").textContent=money(left); $("sSpent").textContent="spent "+money(spent);
+  const t=all("task"), done=t.filter(([,v])=>v.status==="done").length;
+  $("sTasks").textContent=done+"/"+t.length;
+  $("sMeter").style.width = t.length? (done/t.length*100)+"%" : "0";
+  $("cBuy").textContent=need.length;
+  $("cStays").textContent=all("stays").filter(([,v])=>v.status!=="done").length;
+  $("cTask").textContent=t.length-done;
+}
+
+function rowHTML(id,v){
+  const kind=v.kind, st=v.status||"todo";
+  const pills=[];
+  if(kind==="buy"){
+    if(v.pri==="movein" && st!=="done") pills.push('<span class="pill movein">Before move-in</span>');
+    if(st==="ordered") pills.push('<span class="pill ordered">Ordered</span>');
+  }
+  if(kind==="task" && v.due){
+    const dd=daysTo(parseDay(v.due));
+    const cls = st==="done"?"": dd<0?"late": dd<=3?"soon":"";
+    pills.push(`<span class="pill ${cls}">${v.approx?"≈ ":""}${esc(fmtDay(v.due))}${st!=="done"&&dd<0?" · overdue":""}</span>`);
+  }
+  if(v.who && v.who!=="Either") pills.push(`<span class="pill">${esc(v.who)}</span>`);
+  const price = kind==="buy" ? money(st==="todo"? v.est : (v.cost||v.est)) : (kind==="task" && v.est? money(v.est):"");
+  const note = v.notes? `<span>${esc(v.notes.length>90? v.notes.slice(0,88)+"…" : v.notes)}</span>`:"";
+  const label = kind==="buy"? (st==="todo"?"Mark ordered":st==="ordered"?"Mark got it":"Mark still needed") : (st==="done"?"Uncheck":"Check off");
+  return `<li class="row ${st}" data-id="${esc(id)}">
+    <button class="tick" data-act="tick" aria-label="${label}: ${esc(v.title)}"><svg viewBox="0 0 16 16" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg></button>
+    <div class="what" data-act="edit" role="button" tabindex="0"><b>${esc(v.title)}</b>${(pills.length||note)?`<div class="meta">${pills.join("")}${note}</div>`:""}</div>
+    <div class="price">${price}</div></li>`;
+}
+
+function render(){
+  renderStats();
+  document.querySelectorAll(".tabs a").forEach(a=>a.setAttribute("aria-current", a.dataset.tab===tab?"page":"false"));
+  $("intro").textContent=INTRO[tab];
+  const kind=KIND_OF_TAB[tab];
+  // status chips
+  $("fStatus").innerHTML = STATUS[kind].map(([k,l])=>`<button type="button" class="chip" data-st="${k}" aria-pressed="${filt.status===k}">${l}</button>`).join("");
+  $("addPri").innerHTML = PRI[kind].map(([k,l])=>`<option value="${k}">${l}</option>`).join("");
+  $("addPri").hidden = kind==="stays";
+  $("addTitle").placeholder = kind==="buy"?"Add something to buy…":kind==="stays"?"Add an item the seller is leaving…":"Add a step…";
+
+  const out=$("out");
+  if(mode==="pending"){ out.innerHTML='<div class="empty">Loading your list…</div>'; return; }
+  if(items.size===0){
+    out.innerHTML=`<div class="empty"><b>Your list is empty.</b><span>Add your first item above, or load the starter list built from your contract and the seller's fixtures checklist.</span><button class="btn" id="starterBtn" type="button">Load starter list</button></div>`;
+    return;
+  }
+  const q=filt.q.trim().toLowerCase();
+  let rows=all(kind).filter(([,v])=>
+    (!filt.status || (v.status||"todo")===filt.status) &&
+    (!filt.who || v.who===filt.who) &&
+    (!q || (v.title+" "+v.notes+" "+v.room).toLowerCase().includes(q)));
+  if(!rows.length){ out.innerHTML='<div class="empty">Nothing matches these filters.</div>'; return; }
+
+  let html="";
+  if(kind==="task"){
+    rows.sort((a,b)=>((a[1].status==="done")-(b[1].status==="done")) || String(a[1].due||"9").localeCompare(String(b[1].due||"9")));
+    const groups=[["movein","Before closing"],["soon","Closing week"],["later","After closing"]];
+    html = keyFacts() + groups.map(([k,l])=>{
+      const g=rows.filter(([,v])=>v.pri===k); if(!g.length) return "";
+      return `<section class="group"><h3>${l}<span>${g.filter(([,v])=>v.status==="done").length}/${g.length} done</span></h3><ul class="list">${g.map(([id,v])=>rowHTML(id,v)).join("")}</ul></section>`;
+    }).join("");
+  } else {
+    const byRoom=new Map();
+    rows.sort((a,b)=>(a[1].order??1e9)-(b[1].order??1e9) || (a[1].created||0)-(b[1].created||0));
+    rows.forEach(r=>{ const k=r[1].room||"Other"; if(!byRoom.has(k)) byRoom.set(k,[]); byRoom.get(k).push(r); });
+    const order=[...ROOMS,...[...byRoom.keys()].filter(k=>!ROOMS.includes(k))];
+    html = (kind==="stays"? `<div class="note"><b>Not on the list, so the seller can take it:</b> refrigerator, washer, dryer, range/cooktop, vent hood, TV mounts, window screens, outdoor furniture. Repairs listed by seller: none.</div>`:"") +
+      order.filter(k=>byRoom.has(k)).map(k=>{
+        const g=byRoom.get(k);
+        const sub = kind==="buy" ? money(g.filter(([,v])=>v.status!=="done").reduce((a,[,v])=>a+(+v.est||0),0))+" left" : g.filter(([,v])=>v.status==="done").length+"/"+g.length+" confirmed";
+        return `<section class="group"><h3>${esc(k)}<span>${sub}</span></h3><ul class="list">${g.map(([id,v])=>rowHTML(id,v)).join("")}</ul></section>`;
+      }).join("");
+  }
+  out.innerHTML=`<div style="display:grid;gap:18px">${html}</div>`;
+}
+
+function keyFacts(){
+  const f=[["Price","$245,000"],["Seller pays toward costs","$10,000"],["Earnest money","$2,500"],["Due diligence","10 days"],["Closing attorney","Nick Stutzman"],["Our agent","Scott Livingston, KW River Cities"]];
+  return `<div class="keyfacts">${f.map(([a,b])=>`<div class="kf"><span>${a}</span><b>${esc(b)}</b></div>`).join("")}</div>`;
+}
+
+/* ---------- interactions ---------- */
+function setTab(){
+  const h=(location.hash||"").slice(1);
+  tab = KIND_OF_TAB[h]? h : "buy";
+  filt.status=""; render();
+}
+window.addEventListener("hashchange",setTab);
+
+$("addRoom").innerHTML = ROOMS.map(r=>`<option>${r}</option>`).join("");
+$("addForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const title=$("addTitle").value.trim(); if(!title) return;
+  const kind=KIND_OF_TAB[tab];
+  const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  writeItem(id,{kind,title,room:$("addRoom").value,pri:kind==="stays"?"movein":$("addPri").value,est:0,cost:0,status:"todo",who:"Either",notes:"",link:"",due:"",approx:false,order:1e6+items.size,created:Date.now()});
+  $("addTitle").value=""; toast("Added");
+});
+$("q").addEventListener("input",e=>{filt.q=e.target.value;render();});
+$("fWho").addEventListener("change",e=>{filt.who=e.target.value;render();});
+$("fStatus").addEventListener("click",e=>{const b=e.target.closest("[data-st]"); if(b){filt.status=b.dataset.st;render();}});
+$("out").addEventListener("click",e=>{
+  if(e.target.closest("#starterBtn")){ loadStarter(); return; }
+  const row=e.target.closest(".row"); if(!row) return;
+  const id=row.dataset.id, v=items.get(id); if(!v) return;
+  const act=e.target.closest("[data-act]")?.dataset.act;
+  if(act==="tick"){
+    const st=v.status||"todo";
+    const next = v.kind==="buy" ? ({todo:"ordered",ordered:"done",done:"todo"})[st] : (st==="done"?"todo":"done");
+    writeItem(id,{...v,status:next});
+  } else if(act==="edit") openSheet(id);
+});
+$("out").addEventListener("keydown",e=>{ if((e.key==="Enter"||e.key===" ") && e.target.matches(".what")){ e.preventDefault(); openSheet(e.target.closest(".row").dataset.id); }});
+
+function openSheet(id){
+  const v=items.get(id); if(!v) return;
+  const host=$("sheetHost");
+  const opt=(list,cur)=>list.map(([k,l])=>`<option value="${k}" ${k===cur?"selected":""}>${l}</option>`).join("");
+  const stOpts = v.kind==="buy"? [["todo","Still need"],["ordered","Ordered"],["done","Got it"]] : v.kind==="stays"? [["todo","Not checked yet"],["done","Confirmed at walk-through"]] : [["todo","To do"],["done","Done"]];
+  host.innerHTML=`<div class="scrim" data-close></div>
+  <form class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+    <h2 id="shTitle">Edit item</h2>
+    <div class="fields">
+      <label class="full">Name<input id="eTitle" value="${esc(v.title)}" required></label>
+      <label>Room<select id="eRoom">${opt([...new Set([...ROOMS,v.room])].map(r=>[r,r]),v.room)}</select></label>
+      <label>Status<select id="eStatus">${opt(stOpts,v.status||"todo")}</select></label>
+      ${v.kind!=="stays"?`<label>When<select id="ePri">${opt(PRI[v.kind],v.pri)}</select></label>`:""}
+      <label>Who's on it<select id="eWho">${opt([["Either","Either of us"],["Joshua","Joshua"],["April","April"]],v.who||"Either")}</select></label>
+      ${v.kind==="buy"?`<label>Estimate ($)<input id="eEst" type="number" min="0" step="1" inputmode="decimal" value="${+v.est||""}"></label>
+      <label>Actual paid ($)<input id="eCost" type="number" min="0" step="1" inputmode="decimal" value="${+v.cost||""}"></label>
+      <label class="full">Link to product<input id="eLink" type="url" placeholder="https://" value="${esc(v.link)}"></label>`:""}
+      ${v.kind==="task"?`<label>Due date<input id="eDue" type="date" value="${esc(v.due)}"></label>`:""}
+      <label class="full">Notes<textarea id="eNotes">${esc(v.notes)}</textarea></label>
+      ${v.link?`<a class="full" href="${esc(v.link)}" target="_blank" rel="noopener">Open product link ↗</a>`:""}
+    </div>
+    <div class="actions">
+      <button type="button" class="btn danger" id="eDel">Delete</button>
+      <div><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn" type="submit">Save</button></div>
+    </div>
+  </form>`;
+  host.hidden=false; $("eTitle").focus();
+  const close=()=>{host.hidden=true;host.innerHTML="";};
+  host.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",close));
+  host.onkeydown=e=>{ if(e.key==="Escape") close(); };
+  let armed=false;
+  $("eDel").addEventListener("click",()=>{
+    if(!armed){ armed=true; $("eDel").textContent="Tap again to delete"; return; }
+    removeItem(id); close(); toast("Deleted");
+  });
+  $("sheet").addEventListener("submit",e=>{
+    e.preventDefault();
+    const g=k=>{const el=$(k); return el? el.value : undefined;};
+    const nv={...v,title:g("eTitle").trim()||v.title,room:g("eRoom"),status:g("eStatus"),who:g("eWho"),notes:g("eNotes")};
+    if(g("ePri")!==undefined) nv.pri=g("ePri");
+    if(v.kind==="buy"){ nv.est=+g("eEst")||0; nv.cost=+g("eCost")||0; nv.link=g("eLink").trim(); }
+    if(v.kind==="task"){ if(g("eDue")!==v.due) nv.approx=false; nv.due=g("eDue"); }
+    writeItem(id,nv); close(); toast("Saved");
+  });
+}
+
+let tt; function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,1800); }
+
+setTab();
+boot();
+})();
+</script>
