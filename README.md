@@ -16,6 +16,7 @@ Three tabs:
 ## Where the starter data came from
 
 - Seller's Property Disclosure Statement (F301): fixtures staying, built 1933, tankless water heater (age unknown), HVAC serviced 10/22/2026, roof ~8–9 years old.
+- Listing photos and the Zillow 3D Home floor plan: 2 bed / 2 bath, room names and approximate sizes, hall bath tub vs. primary walk-in shower, stacked-laundry nook, sunroom, back deck and shed.
 - Purchase and Sale Agreement (F201): $245,000 price, $10,000 seller contribution, $2,500 earnest money within 3 days, 10-day due diligence, closing 12/03/2026, termite-letter stipulation.
 
 Dates marked ≈ are counted from the Binding Agreement Date, so check them with your agent.

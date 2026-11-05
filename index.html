@@ -88,6 +88,7 @@ textarea{width:100%;min-height:70px;resize:vertical}
 /* lists */
 .group{display:grid;gap:6px}
 .group h3{font-size:17px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:6px 2px 2px}
+.group h3 .size{display:block;font:400 12px var(--mono);color:var(--muted);margin-top:2px}
 .group h3 span{font:400 12px var(--mono);color:var(--muted)}
 .list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
 .row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
@@ -133,7 +134,7 @@ textarea{width:100%;min-height:70px;resize:vertical}
   <header class="top">
     <div class="addr">
       <div>
-        <div class="eyebrow">Our new home · built 1933</div>
+        <div class="eyebrow">2 bed · 2 bath · built 1933</div>
         <h1>2414 19th Ave</h1>
         <p>Columbus, GA 31901 · Joshua &amp; April</p>
       </div>
@@ -180,7 +181,9 @@ textarea{width:100%;min-height:70px;resize:vertical}
 (function(){
 "use strict";
 const CLOSING = new Date(2026, 11, 3);
-const ROOMS = ["Kitchen","Living room","Dining room","Primary bedroom","Bedroom 2","Bathroom","Laundry","Whole house","Outside & yard","Storage building","Paperwork & money"];
+const ROOMS = ["Front porch","Living room","Dining room","Kitchen","Laundry","Primary bedroom","Primary bath","Bedroom 2","Hall bath","Sunroom","Back deck & yard","Storage shed","Whole house","Paperwork & money"];
+/* Approximate sizes from the Zillow 3D Home floor plan. */
+const ROOM_SIZE = {"Front porch":"19′8″ × 7′5″","Living room":"≈13′ × 13′5″","Dining room":"15′1″ × 13′4″","Kitchen":"15′1″ × 10′0″","Laundry":"7′10″ wide","Primary bedroom":"13′4″ × 13′8″","Primary bath":"7′7″ wide · walk-in shower","Bedroom 2":"13′0″ × 13′5″","Hall bath":"8′0″ · tub/shower","Sunroom":"14′11″ × 17′8″","Back deck & yard":"deck 18′7″ × 20′6″"};
 const PRI = {buy:[["movein","Before move-in"],["soon","First month"],["later","Someday"]],
              stays:[["movein","Check at walk-through"]],
              task:[["movein","Before closing"],["soon","Closing week"],["later","After closing"]]};
@@ -196,53 +199,79 @@ const INTRO = {
 
 /* Starter list. Used to fill an empty list on first run. */
 const STARTER = [
- // ----- To buy: items NOT on the seller's checklist, so they leave with the seller
- ["b01","buy","Refrigerator","Kitchen","movein",1400,"Not on the seller's checklist, so it goes with them. Measure the space and door widths first."],
- ["b02","buy","Washer","Laundry","movein",800,"Not staying. Check the hookups before buying."],
- ["b03","buy","Dryer","Laundry","movein",750,"Not staying. Check if the hookup is gas or electric and 3- or 4-prong."],
+ // ----- To buy: items NOT on the seller's checklist leave with the seller
+ ["b01","buy","Refrigerator","Kitchen","movein",1400,"The seller's stainless side-by-side with ice and water isn't on the checklist, so it leaves. It sits in a nook with cabinets above. Measure height, width and depth, and check for an ice-maker water line."],
+ ["b02","buy","Stacked washer/dryer (24-inch)","Laundry","movein",1500,"Not staying. The laundry room off the kitchen fits one stacked unit next to a tall cabinet (the seller has a 24\" GE unitized model). Measure the width and check if the dryer hookup is electric (240V) or gas."],
  ["b04","buy","HVAC filters (a few months' worth)","Whole house","movein",60,"Pull the old filter at walk-through to get the size."],
- ["b05","buy","New locks or rekey kit for exterior doors","Whole house","movein",180,""],
- ["b06","buy","Fire extinguishers (kitchen + one per floor)","Kitchen","movein",80,""],
+ ["b05","buy","New locks or rekey kit for exterior doors","Whole house","movein",180,"Front door plus the sunroom door out to the back deck."],
+ ["b06","buy","Fire extinguishers (kitchen + bedroom hall)","Kitchen","movein",60,"One-story house, so two covers it."],
  ["b07","buy","Cleaning supplies for move-in clean","Whole house","movein",80,""],
- ["b08","buy","Shower curtain, rod liner & bath mats","Bathroom","movein",60,"The shower head stays; curtain does not."],
- ["b09","buy","Plunger & toilet brush","Bathroom","movein",25,""],
+ ["b08","buy","Shower curtain, liner & rings","Hall bath","movein",40,"The hall bath has a tub/shower with a curtain rod. The primary bath has a glass shower door, so it doesn't need one."],
+ ["b09","buy","Bath mats, towels & toilet brushes (both baths)","Primary bath","movein",90,""],
  ["b10","buy","First-aid kit","Whole house","movein",30,""],
- ["b11","buy","Basic toolkit, drill & stud finder","Storage building","movein",150,""],
+ ["b11","buy","Basic toolkit, drill & stud finder","Storage shed","movein",150,""],
  ["b12","buy","Extension cords & surge protectors","Whole house","movein",60,"A 1933 house may have fewer outlets per room."],
+ ["b27","buy","Felt pads for furniture legs","Whole house","movein",20,"Original hardwoods in the living, dining and both bedrooms."],
  ["b13","buy","HEPA vacuum","Whole house","soon",250,"House is pre-1978. A HEPA vacuum is the EPA's advice for cleaning up dust from older paint."],
- ["b14","buy","Descaling kit for tankless water heater","Laundry","soon",40,"Seller says the water heater is tankless, age unknown. Annual flush keeps it healthy."],
- ["b15","buy","Garden hose, nozzle & hose reel","Outside & yard","soon",80,"There's an irrigation system that stays — ask the seller for the controller settings."],
- ["b16","buy","Lawn mower & trimmer","Outside & yard","soon",450,""],
- ["b17","buy","Doormats (front & back)","Outside & yard","soon",50,""],
- ["b18","buy","Step stool / small ladder","Storage building","soon",70,"Ceiling fans and light fixtures stay; you'll want to reach them."],
+ ["b14","buy","Descaling kit for tankless water heater","Whole house","soon",40,"Seller says the water heater is tankless, age unknown. An annual flush keeps it healthy. Find out where it's mounted at the inspection."],
+ ["b15","buy","Garden hose, nozzle & hose reel","Back deck & yard","soon",80,"There's an irrigation system that stays. Ask the seller for the controller settings."],
+ ["b16","buy","Lawn mower & trimmer","Back deck & yard","soon",450,"Front lawn plus a fenced grass back yard. The shed can store them."],
+ ["b17","buy","Doormats (front porch, deck door)","Front porch","soon",50,""],
+ ["b18","buy","Step stool / small ladder","Storage shed","soon",70,"Every room has a ceiling fan, and the bedrooms have cabinets above the closets."],
+ ["b23","buy","Porch swing (or ask the seller to leave theirs)","Front porch","soon",350,"'Porch Swing' is blank on the checklist, so the hanging daybed swing goes with them. The hooks are already in the porch ceiling."],
+ ["b24","buy","Living room rug (8×10)","Living room","soon",300,""],
+ ["b29","buy","Bathroom storage cabinets","Primary bath","soon",80,"The over-toilet cabinets in both baths look like the seller's furniture. Check at walk-through."],
  ["b19","buy","TV wall mount","Living room","later",60,"TV mounts aren't on the seller's checklist."],
- ["b20","buy","Patio furniture","Outside & yard","later",400,"Outdoor furniture isn't staying."],
- ["b21","buy","Grill","Outside & yard","later",300,""],
+ ["b25","buy","Dining room rug (9×12)","Dining room","later",350,"A 9×12 leaves room for chairs to slide out."],
+ ["b26","buy","Sunroom furniture & rug (9×12)","Sunroom","later",900,"Biggest room in the house, with a beamed ceiling, laminate floor and a door to the deck. Room for a sitting area or an office."],
+ ["b28","buy","Guest bed or office furniture","Bedroom 2","later",600,"Two closets with cabinets above, and a decorative fireplace."],
+ ["b20","buy","Deck table & chairs","Back deck & yard","later",400,"The seller's outdoor furniture isn't staying."],
+ ["b21","buy","Grill (and fire pit?)","Back deck & yard","later",350,"The seller's grill and the fire pit on the flagstone patio leave with them."],
  ["b22","buy","Window screens (if missing)","Whole house","later",0,"Screens aren't on the checklist. See what's there at walk-through."],
  // ----- Staying with the house (F301 Fixtures Checklist, checked items)
- ["s01","stays","Dishwasher","Kitchen"],["s02","stays","Garbage disposal","Kitchen"],["s03","stays","Microwave oven","Kitchen"],["s04","stays","Oven","Kitchen"],
- ["s05","stays","Ceiling fans","Whole house"],["s06","stays","Chandelier","Dining room"],["s07","stays","Light bulbs","Whole house"],["s08","stays","Light fixtures","Whole house"],
- ["s09","stays","Vanity (hanging) mirrors","Bathroom"],["s10","stays","Shower head / sprayer","Bathroom"],["s11","stays","Window blinds & hardware","Whole house"],["s12","stays","Window draperies & hardware","Whole house"],
- ["s13","stays","Unused paint","Storage building"],["s14","stays","Irrigation system","Outside & yard"],["s15","stays","Mailbox","Outside & yard"],["s16","stays","Out / storage building","Storage building"],
- ["s17","stays","Alarm system (burglar)","Whole house"],["s18","stays","Alarm system (smoke/fire)","Whole house"],["s19","stays","Security camera","Outside & yard"],["s20","stays","Carbon monoxide detector","Whole house"],
- ["s21","stays","Doorbell","Outside & yard"],["s22","stays","Door & window hardware","Whole house"],["s23","stays","Smoke detectors","Whole house"],["s24","stays","Thermostat","Whole house"],
+ ["s01","stays","Dishwasher","Kitchen","movein",0,"Stainless, left of the farmhouse sink."],
+ ["s02","stays","Garbage disposal","Kitchen"],
+ ["s03","stays","Microwave oven","Kitchen","movein",0,"Stainless, mounted over the range."],
+ ["s04","stays","Oven","Kitchen","movein",0,"In the photos this is a freestanding electric smooth-top range. See the Closing tab about confirming it."],
+ ["s05","stays","Ceiling fans","Whole house","movein",0,"Every room in the photos has one, including the front porch and sunroom."],
+ ["s06","stays","Chandelier","Dining room"],
+ ["s07","stays","Light bulbs","Whole house"],
+ ["s08","stays","Light fixtures","Whole house","movein",0,"Includes the vanity lights in both baths."],
+ ["s09","stays","Vanity (hanging) mirrors","Primary bath","movein",0,"Both baths."],
+ ["s10","stays","Shower head / sprayer","Primary bath","movein",0,"Both baths."],
+ ["s11","stays","Window blinds & hardware","Whole house","movein",0,"White blinds throughout, including all the sunroom windows."],
+ ["s12","stays","Window draperies & hardware","Primary bedroom","movein",0,"The gray curtains and rods in the primary bedroom."],
+ ["s13","stays","Unused paint","Storage shed"],
+ ["s14","stays","Irrigation system","Back deck & yard"],
+ ["s15","stays","Mailbox","Front porch","movein",0,"The red box on the wall by the front door."],
+ ["s16","stays","Out / storage building","Storage shed","movein",0,"The gray shed with a door and window, on the concrete pad behind the house."],
+ ["s17","stays","Alarm system (burglar)","Whole house"],
+ ["s18","stays","Alarm system (smoke/fire)","Whole house"],
+ ["s19","stays","Security camera","Whole house"],
+ ["s20","stays","Carbon monoxide detector","Whole house"],
+ ["s21","stays","Doorbell","Front porch"],
+ ["s22","stays","Door & window hardware","Whole house"],
+ ["s23","stays","Smoke detectors","Whole house"],
+ ["s24","stays","Thermostat","Dining room","movein",0,"On the dining room wall by the window."],
  // ----- Closing steps
  ["t01","task","Deliver $2,500 earnest money to Keller Williams Realty River Cities","Paperwork & money","movein",2500,"Due within 3 days of the Binding Agreement Date.","2026-11-06",true],
- ["t02","task","Schedule home inspection","Paperwork & money","movein",450,"Must happen inside the 10-day due diligence period.","2026-11-09",true],
+ ["t02","task","Schedule home inspection","Paperwork & money","movein",450,"Must happen inside the 10-day due diligence period. Ask the inspector to look closely at the back deck and steps, the sunroom, and both fireplaces.","2026-11-09",true],
  ["t03","task","Decide on a lead-based paint inspection","Paperwork & money","movein",400,"House is from 1933. The contract gives you up to 10 days to test for lead.","2026-11-09",true],
- ["t04","task","Review inspection report & request repairs","Paperwork & money","movein",0,"Last day of due diligence (10 days from Binding Agreement Date). After this you can't walk away for free.","2026-11-13",true],
+ ["t20","task","Ask: do the fireplaces work, or are they decorative?","Whole house","movein",0,"The living room and Bedroom 2 share a chimney. Both have decorative iron covers in the photos.","2026-11-09",true],
+ ["t04","task","Review inspection report & request repairs","Paperwork & money","movein",0,"Last day of due diligence (10 days from the Binding Agreement Date). After this you can't walk away for free.","2026-11-13",true],
+ ["t08","task","Ask: does the stove (range) stay?","Kitchen","movein",0,"Photos show a freestanding electric smooth-top range with a microwave above. The checklist marks 'Oven' but leaves 'Range' and 'Surface Cook Top' blank. Get it in writing that the range stays.","2026-11-13",false],
+ ["t19","task","Ask: do the kitchen café shutters & bamboo shade stay?","Kitchen","movein",0,"'Window Shutters' is blank on the checklist, so the interior shutters on the sink window could be removed.","2026-11-13",false],
  ["t05","task","Lender: send documents, appraisal, clear to close","Paperwork & money","movein",0,"Conventional loan contingency (F404).","2026-11-25",false],
  ["t06","task","Buy homeowners insurance & send binder to lender","Paperwork & money","movein",0,"","2026-11-20",false],
  ["t07","task","Confirm seller's termite letter is in","Paperwork & money","movein",0,"Special stipulation: seller provides an Official Georgia Wood Infestation Report before closing, and treats any active infestation.","2026-12-01",false],
- ["t08","task","Ask: does the stove (range) stay?","Kitchen","movein",0,"The checklist marks 'Oven' but leaves 'Range', 'Surface Cook Top' and 'Vent Hood' blank. Get it in writing.","2026-11-13",false],
  ["t09","task","Ask seller for tankless water heater & HVAC details","Paperwork & money","movein",0,"Water heater age unknown. HVAC last serviced 10/22/2026. Roof ~8–9 years old, repaired with ridge vents added.","2026-11-20",false],
  ["t10","task","Ask about smart devices & ADT option","Whole house","movein",0,"Seller noted an ADT option. Get the cameras, doorbell and alarm reset to your accounts.","2026-11-20",false],
  ["t11","task","Set up utilities: Georgia Power, Columbus Water Works, gas, internet","Paperwork & money","soon",0,"Start service on closing day.","2026-11-30",false],
  ["t12","task","Book movers or a truck","Paperwork & money","movein",0,"","2026-11-20",false],
  ["t13","task","Call the closing attorney to confirm wiring instructions by phone","Paperwork & money","soon",0,"Closing attorney: Nick Stutzman. Never trust wiring instructions from email alone.","2026-12-01",false],
- ["t14","task","Final walk-through (use the Staying with house list)","Paperwork & money","soon",0,"","2026-12-02",false],
+ ["t14","task","Final walk-through (use the Staying list)","Paperwork & money","soon",0,"","2026-12-02",false],
  ["t15","task","Closing day — get the keys","Paperwork & money","soon",0,"$245,000 price, $10,000 seller contribution toward your costs. Possession at closing.","2026-12-03",false],
- ["t16","task","Change locks & reset alarm, camera and garage codes","Whole house","later",0,"","2026-12-04",false],
+ ["t16","task","Change locks & reset alarm, camera and doorbell codes","Whole house","later",0,"","2026-12-04",false],
  ["t17","task","Change address with USPS, banks, work, DMV","Paperwork & money","later",0,"","2026-12-10",false],
  ["t18","task","File homestead exemption with Muscogee County","Paperwork & money","later",0,"Deadline is April 1, 2027 for the 2027 tax year.","2027-04-01",false]
 ];
@@ -394,11 +423,11 @@ function render(){
     rows.sort((a,b)=>(a[1].order??1e9)-(b[1].order??1e9) || (a[1].created||0)-(b[1].created||0));
     rows.forEach(r=>{ const k=r[1].room||"Other"; if(!byRoom.has(k)) byRoom.set(k,[]); byRoom.get(k).push(r); });
     const order=[...ROOMS,...[...byRoom.keys()].filter(k=>!ROOMS.includes(k))];
-    html = (kind==="stays"? `<div class="note"><b>Not on the list, so the seller can take it:</b> refrigerator, washer, dryer, range/cooktop, vent hood, TV mounts, window screens, outdoor furniture. Repairs listed by seller: none.</div>`:"") +
+    html = (kind==="stays"? `<div class="note"><b>Not on the list, so the seller can take it:</b> refrigerator, washer/dryer, porch swing, grill, fire pit, outdoor furniture, TV mounts, window screens, kitchen café shutters. Range/cooktop and vent hood are also blank, so confirm the stove. Repairs listed by seller: none.</div>`:"") +
       order.filter(k=>byRoom.has(k)).map(k=>{
         const g=byRoom.get(k);
         const sub = kind==="buy" ? money(g.filter(([,v])=>v.status!=="done").reduce((a,[,v])=>a+(+v.est||0),0))+" left" : g.filter(([,v])=>v.status==="done").length+"/"+g.length+" confirmed";
-        return `<section class="group"><h3>${esc(k)}<span>${sub}</span></h3><ul class="list">${g.map(([id,v])=>rowHTML(id,v)).join("")}</ul></section>`;
+        return `<section class="group"><h3><div>${esc(k)}${ROOM_SIZE[k]?`<small class="size">${ROOM_SIZE[k]}</small>`:""}</div><span>${sub}</span></h3><ul class="list">${g.map(([id,v])=>rowHTML(id,v)).join("")}</ul></section>`;
       }).join("");
   }
   out.innerHTML=`<div style="display:grid;gap:18px">${html}</div>`;
