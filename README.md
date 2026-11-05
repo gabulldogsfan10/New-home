@@ -2,7 +2,9 @@
 
 A shared list for Joshua & April for the house at 2414 19th Ave, Columbus, GA 31901 (closing Dec 3, 2026).
 
-Three tabs:
+Four tabs:
+
+- **Floor plan** — a clickable plan traced from the listing's floor plan. Rooms are colored by what's left (red = something needed before move-in) with a count of open items. Tap a room to see what stays, what's still needed, open questions, and to add an item to that room.
 
 - **To buy** — things the house needs, grouped by room. The circle moves an item from *Still need* → *Ordered* → *Got it*. Tap an item to set a price, link, who's buying it, and notes. The header totals what's left in the budget.
 - **Staying** — the 24 items the seller checked on the Fixtures Checklist (GAR F301, signed 10/21/2026). Use it at the final walk-through.

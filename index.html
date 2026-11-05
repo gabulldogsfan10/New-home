@@ -127,6 +127,33 @@ textarea{width:100%;min-height:70px;resize:vertical}
 .actions{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
 .actions div{display:flex;gap:8px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:13px;z-index:30}
+/* floor plan */
+.plan{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:640px){.plan{grid-template-columns:minmax(0,1fr)}}
+.plan-col{display:grid;gap:10px;justify-items:center}
+.plan-svg{width:100%;max-width:320px;height:auto;display:block}
+.plan-svg .rm{cursor:pointer;outline:none}
+.plan-svg .rm path{fill:var(--surface);stroke:var(--fg);stroke-width:3;stroke-linejoin:round;transition:fill .2s}
+.plan-svg .rm.need path{fill:var(--brick-soft)}
+.plan-svg .rm.some path{fill:var(--haint-soft)}
+.plan-svg .rm.ok path{fill:var(--ok-soft)}
+.plan-svg .rm.out path{stroke-dasharray:8 6;stroke-width:2;stroke:var(--muted)}
+.plan-svg .rm:hover path,.plan-svg .rm:focus-visible path{stroke:var(--haint);stroke-width:5}
+.plan-svg .rm.sel path{stroke:var(--haint);stroke-width:7}
+.plan-svg text{fill:var(--fg);font:600 17px var(--body);text-anchor:middle;pointer-events:none}
+.plan-svg text.sm{font-size:13px}
+.plan-svg text.dim{fill:var(--muted);font:400 12px var(--mono)}
+.plan-svg .badge circle{fill:var(--brick)}
+.plan-svg .badge text{fill:var(--surface);font:600 13px var(--mono)}
+.plan-svg .entry{fill:var(--haint)}
+@media (max-width:480px){.tabs a{padding:10px 7px;font-size:14px}.tabs .count{display:none}}
+.legend{display:flex;gap:6px 12px;flex-wrap:wrap;justify-content:center;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--line)}
+.roompanel{display:grid;gap:14px;min-width:0}
+.roompanel h2{font-size:26px}
+.sub{font:400 12px var(--mono);color:var(--muted);margin:2px 0 0}
+.mini{display:flex;gap:6px;flex-wrap:wrap}
+.roomadd{display:flex;gap:8px;flex-wrap:wrap}.roomadd input{flex:1 1 160px;min-width:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -149,6 +176,7 @@ textarea{width:100%;min-height:70px;resize:vertical}
   </header>
 
   <nav class="tabs" aria-label="Lists">
+    <a href="#plan" data-tab="plan">Floor plan</a>
     <a href="#buy" data-tab="buy">To buy <span class="count" id="cBuy">0</span></a>
     <a href="#stays" data-tab="stays">Staying <span class="count" id="cStays">0</span></a>
     <a href="#closing" data-tab="closing">Closing <span class="count" id="cTask">0</span></a>
@@ -192,6 +220,7 @@ const STATUS = {buy:[["","All"],["todo","Still need"],["ordered","Ordered"],["do
                 task:[["","All"],["todo","To do"],["done","Done"]]};
 const KIND_OF_TAB = {buy:"buy",stays:"stays",closing:"task"};
 const INTRO = {
+  plan:"Tap a room to see what stays with it, what we still need, and any open questions. Red rooms need something before move-in. The number is how many things are still open there.",
   buy:"Everything we still need to get. Tap the circle to cycle Still need → Ordered → Got it. Tap an item to add a price, a link, or who's handling it.",
   stays:"From the seller's Fixtures Checklist (F301, signed 10/21/2026). These items must stay with the house. Use this at the final walk-through and check each one off when you see it.",
   closing:"Deadlines from the Purchase and Sale Agreement (offer date 11/03/2026). Dates marked ≈ count from the Binding Agreement Date, so confirm the exact day with Scott."
@@ -390,6 +419,11 @@ function render(){
   renderStats();
   document.querySelectorAll(".tabs a").forEach(a=>a.setAttribute("aria-current", a.dataset.tab===tab?"page":"false"));
   $("intro").textContent=INTRO[tab];
+  $("addForm").hidden = $("toolbar").hidden = tab==="plan";
+  if(tab==="plan"){
+    if(mode==="pending"){ $("out").innerHTML='<div class="empty">Loading your list…</div>'; return; }
+    $("out").innerHTML=planHTML(); return;
+  }
   const kind=KIND_OF_TAB[tab];
   // status chips
   $("fStatus").innerHTML = STATUS[kind].map(([k,l])=>`<button type="button" class="chip" data-st="${k}" aria-pressed="${filt.status===k}">${l}</button>`).join("");
@@ -438,10 +472,84 @@ function keyFacts(){
   return `<div class="keyfacts">${f.map(([a,b])=>`<div class="kf"><span>${a}</span><b>${esc(b)}</b></div>`).join("")}</div>`;
 }
 
+/* ---------- floor plan ---------- */
+/* Traced from the Zillow 3D Home floor plan (approximate). Units are arbitrary SVG units, ≈16 per foot. */
+const PLAN = [
+  {room:"Back deck & yard", label:"Back deck", d:"M8 10H307V175H315V340H257V175H8Z", x:150, y:95},
+  {room:"Storage shed", label:"Shed", d:"M352 40H500V150H352Z", x:426, y:98, out:true},
+  {room:"Sunroom", d:"M12 178H255V465H157V410H12Z", x:134, y:290},
+  {room:"Primary bath", label:"Primary bath", d:"M12 410H157V465H125V545H12Z", x:70, y:480, small:true},
+  {room:"Laundry", d:"M125 465H255V545H125Z", x:190, y:508, small:true},
+  {room:"Kitchen", d:"M255 465H503V633H255Z M232 545H255V633H232Z", x:379, y:552},
+  {room:"Primary bedroom", label:"Primary bed", d:"M12 545H232V768H12Z M232 633H255V768H232Z", x:122, y:660},
+  {room:"Dining room", label:"Dining", d:"M255 633H503V852H255Z", x:379, y:745},
+  {room:"Hall bath", d:"M12 768H145V852H12Z", x:78, y:813, small:true},
+  {room:"Whole house", label:"Whole house", d:"M145 768H255V852H145Z", x:200, y:813, small:true},
+  {room:"Bedroom 2", d:"M12 852H225V1072H12Z M225 852H255V1072H225Z", x:118, y:965},
+  {room:"Living room", label:"Living", d:"M255 852H503V1072H255Z", x:379, y:965},
+  {room:"Front porch", label:"Front porch", d:"M83 1075H399V1195H83Z", x:241, y:1138}
+];
+let selRoom = "Kitchen";
+function roomStats(room){
+  const r=[...items.entries()].filter(([,v])=>v.room===room);
+  const buy=r.filter(([,v])=>v.kind==="buy"), stays=r.filter(([,v])=>v.kind==="stays"), task=r.filter(([,v])=>v.kind==="task");
+  const needOpen=buy.filter(([,v])=>v.status!=="done");
+  const urgent=needOpen.some(([,v])=>v.pri==="movein") || task.some(([,v])=>v.status!=="done"&&v.pri==="movein");
+  const open=needOpen.length + task.filter(([,v])=>v.status!=="done").length;
+  const unconfirmed=stays.some(([,v])=>v.status!=="done");
+  const cls = !r.length? "" : urgent? "need" : (open||unconfirmed)? "some" : "ok";
+  return {r,buy,stays,task,needOpen,open,cls,left:needOpen.reduce((a,[,v])=>a+(+v.est||0),0)};
+}
+function planSVG(){
+  const g=PLAN.map(p=>{
+    const s=roomStats(p.room), n=s.needOpen.length+s.task.filter(([,v])=>v.status!=="done").length;
+    const name=p.label||p.room, size=ROOM_SIZE[p.room]||"";
+    const lbl = `${name}: ${s.needOpen.length} to get, ${s.stays.length} staying`;
+    return `<g class="rm ${s.cls}${p.out?" out":""}${selRoom===p.room?" sel":""}" data-room="${esc(p.room)}" tabindex="0" role="button" aria-label="${esc(lbl)}" aria-pressed="${selRoom===p.room}">
+      <path d="${p.d}" fill-rule="nonzero"/>
+      <text x="${p.x}" y="${p.y}" class="${p.small?"sm":""}">${esc(name)}</text>
+      ${!p.small&&size?`<text x="${p.x}" y="${p.y+18}" class="dim">${esc(size.replace(/^deck /,""))}</text>`:""}
+      ${n?`<g class="badge"><circle cx="${p.x}" cy="${p.y-(p.small?22:30)}" r="12"/><text x="${p.x}" y="${p.y-(p.small?18:26)}">${n}</text></g>`:""}
+    </g>`;}).join("");
+  return `<svg class="plan-svg" viewBox="0 0 515 1205" role="group" aria-label="Floor plan of 2414 19th Ave. Choose a room.">${g}
+    <text x="426" y="172" class="dim">not to scale</text>
+    <path d="M241 1200 l-8 -10 h16 z" class="entry"/></svg>`;
+}
+function roomPanel(){
+  const s=roomStats(selRoom);
+  const sec=(title,list,empty)=> list.length? `<section class="group"><h3>${title}<span>${list.length}</span></h3><ul class="list">${list.map(([id,v])=>rowHTML(id,v)).join("")}</ul></section>` : (empty?`<p class="sub">${empty}</p>`:"");
+  const ord=(a,b)=>(a[1].order??1e9)-(b[1].order??1e9);
+  const need=s.needOpen.sort(ord), got=s.buy.filter(([,v])=>v.status==="done").sort(ord);
+  const tasks=s.task.filter(([,v])=>v.status!=="done").sort(ord), stays=s.stays.sort(ord);
+  const title = selRoom==="Whole house"? "Whole house" : selRoom;
+  return `<div class="roompanel" id="roomPanel">
+    <div><div class="eyebrow">Room</div><h2>${esc(title)}</h2>${ROOM_SIZE[selRoom]?`<div class="sub">${esc(ROOM_SIZE[selRoom])}</div>`:""}
+      <div class="mini" style="margin-top:8px"><span class="pill ${s.needOpen.length?"movein":""}">${s.needOpen.length} to get · ${money(s.left)}</span><span class="pill">${s.stays.filter(([,v])=>v.status==="done").length}/${s.stays.length} staying confirmed</span>${tasks.length?`<span class="pill soon">${tasks.length} open question${tasks.length>1?"s":""}</span>`:""}</div></div>
+    ${sec("Still needed",need,"Nothing left to buy for this room.")}
+    ${sec("Questions &amp; steps",tasks)}
+    ${sec("Staying with the house",stays,"The seller's checklist doesn't leave anything specific to this room.")}
+    ${sec("Got it",got)}
+    <form class="roomadd" id="roomAdd" autocomplete="off">
+      <input id="raTitle" placeholder="Add to ${esc(title)}…" aria-label="New item for ${esc(title)}" required>
+      <select id="raKind" aria-label="Type"><option value="buy">To buy</option><option value="stays">Staying</option><option value="task">Question</option></select>
+      <button class="btn" type="submit">Add</button>
+    </form>
+  </div>`;
+}
+function planHTML(){
+  return `<div class="plan"><div class="plan-col">${planSVG()}
+    <div class="legend"><span><i style="background:var(--brick-soft)"></i>Needs something before move-in</span><span><i style="background:var(--haint-soft)"></i>Items left or to confirm</span><span><i style="background:var(--ok-soft)"></i>All set</span></div></div>
+    ${roomPanel()}</div>`;
+}
+function pickRoom(room){
+  selRoom=room; render();
+  const p=$("roomPanel"); if(p && matchMedia("(max-width:640px)").matches) p.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
 /* ---------- interactions ---------- */
 function setTab(){
   const h=(location.hash||"").slice(1);
-  tab = KIND_OF_TAB[h]? h : "buy";
+  tab = (KIND_OF_TAB[h]||h==="plan")? h : "plan";
   filt.status=""; render();
 }
 window.addEventListener("hashchange",setTab);
@@ -455,11 +563,21 @@ $("addForm").addEventListener("submit",e=>{
   writeItem(id,{kind,title,room:$("addRoom").value,pri:kind==="stays"?"movein":$("addPri").value,est:0,cost:0,status:"todo",who:"Either",notes:"",link:"",due:"",approx:false,order:1e6+items.size,created:Date.now()});
   $("addTitle").value=""; toast("Added");
 });
+$("out").addEventListener("submit",e=>{
+  if(e.target.id!=="roomAdd") return;
+  e.preventDefault();
+  const title=$("raTitle").value.trim(); if(!title) return;
+  const kind=$("raKind").value;
+  const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  writeItem(id,{kind,title,room:selRoom,pri:"movein",est:0,cost:0,status:"todo",who:"Either",notes:"",link:"",due:"",approx:false,order:1e6+items.size,created:Date.now()});
+  toast("Added to "+selRoom);
+});
 $("q").addEventListener("input",e=>{filt.q=e.target.value;render();});
 $("fWho").addEventListener("change",e=>{filt.who=e.target.value;render();});
 $("fStatus").addEventListener("click",e=>{const b=e.target.closest("[data-st]"); if(b){filt.status=b.dataset.st;render();}});
 $("out").addEventListener("click",e=>{
   if(e.target.closest("#starterBtn")){ loadStarter(); return; }
+  const rm=e.target.closest("[data-room]"); if(rm){ pickRoom(rm.dataset.room); return; }
   const row=e.target.closest(".row"); if(!row) return;
   const id=row.dataset.id, v=items.get(id); if(!v) return;
   const act=e.target.closest("[data-act]")?.dataset.act;
@@ -469,7 +587,7 @@ $("out").addEventListener("click",e=>{
     writeItem(id,{...v,status:next});
   } else if(act==="edit") openSheet(id);
 });
-$("out").addEventListener("keydown",e=>{ if((e.key==="Enter"||e.key===" ") && e.target.matches(".what")){ e.preventDefault(); openSheet(e.target.closest(".row").dataset.id); }});
+$("out").addEventListener("keydown",e=>{ const rm=e.target.closest&&e.target.closest("[data-room]"); if(rm&&(e.key==="Enter"||e.key===" ")){ e.preventDefault(); pickRoom(rm.dataset.room); setTimeout(()=>{const n=document.querySelector('[data-room="'+CSS.escape(rm.dataset.room)+'"]'); n&&n.focus();},0); return; } if((e.key==="Enter"||e.key===" ") && e.target.matches(".what")){ e.preventDefault(); openSheet(e.target.closest(".row").dataset.id); }});
 
 function openSheet(id){
   const v=items.get(id); if(!v) return;
